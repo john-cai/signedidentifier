@@ -31,7 +31,7 @@ func main() {
 	}
 	in := os.Args[1]
 	if len(in) > 250 {
-		log.Fatal("string must be less than 250 characters")
+		log.Fatal("input must be less than 250 characters")
 	}
 
 	keyLocation := os.Getenv("KEYPATH")

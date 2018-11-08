@@ -8,6 +8,7 @@ import (
 	"errors"
 )
 
+// generateRsaKeyPair generates a public/private keypair
 func generateRsaKeyPair() (*rsa.PrivateKey, *rsa.PublicKey, error) {
 	privkey, err := rsa.GenerateKey(rand.Reader, 4096)
 	if err != nil {
@@ -16,6 +17,7 @@ func generateRsaKeyPair() (*rsa.PrivateKey, *rsa.PublicKey, error) {
 	return privkey, &privkey.PublicKey, nil
 }
 
+// exportRsaPrivateKeyAsPem takes an *rsa.PrivateKey and returns a byte slice of the PEM representation of the key
 func exportRsaPrivateKeyAsPem(privkey *rsa.PrivateKey) []byte {
 	privkeyBytes := x509.MarshalPKCS1PrivateKey(privkey)
 	privkeyPem := pem.EncodeToMemory(
@@ -27,6 +29,7 @@ func exportRsaPrivateKeyAsPem(privkey *rsa.PrivateKey) []byte {
 	return privkeyPem
 }
 
+// exportRsaPublicKeyAsPem takes an *rsa.PublicKey and returns a byte slice of the PEM representation of the key
 func exportRsaPublicKeyAsPem(pubkey *rsa.PublicKey) []byte {
 	pubkeyBytes := x509.MarshalPKCS1PublicKey(pubkey)
 	pubkeyPem := pem.EncodeToMemory(
@@ -38,6 +41,7 @@ func exportRsaPublicKeyAsPem(pubkey *rsa.PublicKey) []byte {
 	return pubkeyPem
 }
 
+// parseRsaPrivateKeyFromPem takes a byte slice and parses it as a private key
 func parseRsaPrivateKeyFromPem(b []byte) (*rsa.PrivateKey, error) {
 	block, _ := pem.Decode(b)
 	if block == nil {
@@ -46,6 +50,7 @@ func parseRsaPrivateKeyFromPem(b []byte) (*rsa.PrivateKey, error) {
 	return x509.ParsePKCS1PrivateKey(block.Bytes)
 }
 
+// parseRsaPublicKeyFromPem takes a byte slice and parses it as a public key
 func parseRsaPublicKeyFromPem(b []byte) (*rsa.PublicKey, error) {
 	block, _ := pem.Decode(b)
 	if block == nil {

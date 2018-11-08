@@ -14,26 +14,37 @@ import (
 )
 
 const (
-	DefaultKeypath      = "/.ssh"
+	// DefaultKeypath is the default path for where the keys will be stored on the filesystem
+	DefaultKeypath = "/.ssh"
+	// DefaultPrivFilename is the default filename for the private rsa key
 	DefaultPrivFilename = "id_rsa"
-	DefaultPubFilename  = "id_rsa.pub"
+	// DefaultPubFilename is the default filename for the public rsa key
+	DefaultPubFilename = "id_rsa.pub"
 )
 
+// Response is how the signature is returned
 type Response struct {
-	Message   string `json:"message"`
+	// Message is the original input string
+	Message string `json:"message"`
+	// Signature is the base64 encoded signature
 	Signature string `json:"signature"`
+	// PublicKey is the PEM representation of the public key
 	PublicKey string `json:"pubkey"`
 }
 
 func main() {
+	// check that only 1 argument was passed in
 	if len(os.Args) != 2 {
 		log.Fatal("wrong number of arguments")
 	}
 	in := os.Args[1]
+
+	// validate the input length
 	if len(in) > 250 {
 		log.Fatal("input must be less than 250 characters")
 	}
 
+	// read environment variables for the key path, and key filenames
 	keyLocation := os.Getenv("KEYPATH")
 	if keyLocation == "" {
 		keyLocation = DefaultKeypath
@@ -47,7 +58,7 @@ func main() {
 		privFilename = DefaultPrivFilename
 	}
 
-	// if keylocation doesn't exist, create the folder and the keys
+	// if the key location doesn't exist, create the folder and the keys
 	var priv *rsa.PrivateKey
 	var pub *rsa.PublicKey
 	if _, err := os.Stat(keyLocation); os.IsNotExist(err) {
@@ -66,6 +77,7 @@ func main() {
 			log.Fatalf("could not write file for public key: %v", err)
 		}
 	}
+	// if necessary, read the private and public key files
 	if priv == nil {
 		privFile, err := ioutil.ReadFile(fmt.Sprintf("%s/%s", keyLocation, privFilename))
 		if err != nil {
@@ -85,6 +97,7 @@ func main() {
 		}
 	}
 
+	// calculate the signature
 	hashed := sha256.Sum256([]byte(in))
 	signature, err := rsa.SignPKCS1v15(rand.Reader, priv, crypto.SHA256, hashed[:])
 	if err != nil {
